@@ -6,7 +6,7 @@ public class Move : MonoBehaviour
 {
     Vector2 movement = new Vector2();
     Vector2 rotate = new Vector2();
-    public float speed = 5f;
+    private float speed = 5f;
     public float rspeed = 5f;
     public float fspeed = 1f;
     private float dist;
@@ -35,7 +35,10 @@ public class Move : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if (isHuman) Move_human();
+        if (isHuman) { 
+            Move_human();
+            Jump();
+        }
         else Move_Eagle();
 
     }
@@ -50,6 +53,17 @@ public class Move : MonoBehaviour
         {
             animator.SetBool("Run", false);
         }
+
+        if (Input.GetKey("left shift"))
+        {
+            animator.SetBool("Sprint", true);
+            speed = 8f;
+        }
+        else {
+            animator.SetBool("Sprint", false);
+            speed = 5f;
+        }
+
     }
     private void Planecheck()
     {
@@ -61,7 +75,7 @@ public class Move : MonoBehaviour
         {
             if (Hit.collider.tag == "terrain")
             {
-                if (Hit.distance < 0.5f)
+                if (Hit.distance < 0.2f)
                 {
                     isGround = true;
                 }
@@ -102,6 +116,7 @@ public class Move : MonoBehaviour
         transform.position += (dir2 * movement.x) * Time.deltaTime;
 
         transform.eulerAngles += new Vector3(0, rotate.x, 0);
+
     }
     private void Move_Eagle()
     {
@@ -126,10 +141,24 @@ public class Move : MonoBehaviour
             {
                 rb.velocity += new Vector3(0f, fspeed, 0f);
             }
-                    }
-        else if(!isGround)
+        }
+    
+    }
+
+    private void Jump()
+    {
+        if (Input.GetKeyDown("space"))
         {
-            //transform.position += new Vector3(0, -fspeed, 0);
+            if (isGround)
+            {
+                rb.AddForce(Vector3.up * 15f, ForceMode.Impulse);
+                animator.SetBool("Jump", true);
+                isGround = false;
+            }
+        }
+        if (isGround)
+        {
+           animator.SetBool("Jump", false);
         }
     }
 
